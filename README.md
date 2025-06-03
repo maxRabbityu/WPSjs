@@ -1,4 +1,4 @@
-# WPS JS for PPTsci  
+# WPS for Mac JS for PPTsci  
 
 一句话介绍该代码功能：**Mac版WPS软件实现ppt自动增加图片标签（ABCDEFG等）和图片下方增加图片标题**  
 
