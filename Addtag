@@ -72,8 +72,8 @@ function Addtag() {
                     // 插入标签文本框（左上角偏移）
                     var textBox = slide.Shapes.AddTextbox(
                         msoTextOrientationHorizontal,
-                        left - 25,      // 左上角横向偏移 5 像素
-                        top - 2,       // 左上角纵向偏移 5 像素
+                        left - 25,      // 左上角横向偏移 25 像素（-为左，可调整）
+                        top - 2,       // 左上角纵向偏移 2 像素（-为上，可调整）
                         80,            // 文本框宽度（可调整）
                         20             // 文本框高度（可调整）
                     );
