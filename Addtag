@@ -1,0 +1,95 @@
+function Addtag() {
+    try {
+        var pres = Application.ActivePresentation;
+        if (!pres) {
+            MsgBox("未找到活动演示文稿，请打开一个PPT后重试！");
+            return;
+        }
+
+        var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        for (var slideIdx = 1; slideIdx <= pres.Slides.Count; slideIdx++) {
+            var slide = pres.Slides.Item(slideIdx);
+
+            // ⚠️ 删除已有宏生成的标签
+            for (var shapeIdx = slide.Shapes.Count; shapeIdx >= 1; shapeIdx--) {
+                var shape = slide.Shapes.Item(shapeIdx);
+                try {
+                    if (shape.Tags.Item("AutoLabel") === "true") {
+                        shape.Delete();
+                    }
+                } catch (e) {
+                    // 忽略非宏生成的标签
+                }
+            }
+
+            // 收集当前幻灯片的所有图片
+            var images = [];
+            for (var shapeIdx = 1; shapeIdx <= slide.Shapes.Count; shapeIdx++) {
+                var shape = slide.Shapes.Item(shapeIdx);
+                if (shape.Type === 13) { // 判断是否为图片
+                    images.push(shape);
+                }
+            }
+
+            // 按 Top 排序 + 分组处理
+            var rows = {};
+            for (var i = 0; i < images.length; i++) {
+                var top = images[i].Top;
+                var rowKey = Math.floor(top / 10); // 10 像素为一组
+                if (!rows[rowKey]) {
+                    rows[rowKey] = [];
+                }
+                rows[rowKey].push(images[i]);
+            }
+
+            // 将分组后的行按 Top 排序
+            var sortedRows = Object.keys(rows).sort(function(a, b) {
+                return parseInt(a) - parseInt(b);
+            }).map(function(key) {
+                return rows[key];
+            });
+
+            // 每行内按 Left 排序
+            for (var r = 0; r < sortedRows.length; r++) {
+                sortedRows[r].sort(function(a, b) {
+                    return a.Left - b.Left;
+                });
+            }
+
+            // 全局编号（跨行）
+            var globalIndex = 0;
+
+            // 从上到下、从左到右添加标签
+            for (var r = 0; r < sortedRows.length; r++) {
+                for (var i = 0; i < sortedRows[r].length; i++) {
+                    var shape = sortedRows[r][i];
+                    var left = shape.Left;
+                    var top = shape.Top;
+
+                    var label = alphabet[globalIndex]; // 全局编号
+
+                    // 插入标签文本框（左上角偏移）
+                    var textBox = slide.Shapes.AddTextbox(
+                        msoTextOrientationHorizontal,
+                        left - 25,      // 左上角横向偏移 5 像素
+                        top - 2,       // 左上角纵向偏移 5 像素
+                        80,            // 文本框宽度（可调整）
+                        20             // 文本框高度（可调整）
+                    );
+                    textBox.TextFrame.TextRange.Text = label;
+
+
+                    // ✅ 添加标记，标识为宏生成的标签
+                    textBox.Tags.Add("AutoLabel", "true");
+
+                    globalIndex++;
+                }
+            }
+        }
+
+        MsgBox("自动编号完成！已按从上到下、从左到右的顺序编号。");
+    } catch (e) {
+        MsgBox("宏执行错误: " + e.message);
+    }
+}
