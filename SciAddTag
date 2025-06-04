@@ -1,4 +1,4 @@
-function Addtag() {
+function SciAddtag() {
     try {
         var pres = Application.ActivePresentation;
         if (!pres) {
