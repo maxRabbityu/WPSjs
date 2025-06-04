@@ -1,4 +1,4 @@
-function NewID() {
+function SciPicID() {
     try {
         var pres = Application.ActivePresentation;
         if (!pres) {
